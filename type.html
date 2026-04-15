@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 Typer - Race Center</title>
+    <style>
+      :root {
+        --f1-red: #e10600;
+        --f1-black: #15151e;
+        --f1-dark-gray: #38383f;
+        --f1-white: #ffffff;
+        --f1-silver: #949498;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      body {
+        background-color: var(--f1-black);
+        color: var(--f1-white);
+        overflow-x: hidden;
+      }
+
+      /* --- ANIMACJA ŁADOWANIA (TOR SUZUKA) --- */
+      #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--f1-black);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition:
+          opacity 0.8s ease-out,
+          visibility 0.8s;
+      }
+
+      .track-container {
+        width: 300px;
+        height: 200px;
+        position: relative;
+      }
+
+      /* Uproszczona ścieżka toru Suzuka */
+      .suzuka-path {
+        fill: none;
+        stroke: var(--f1-dark-gray);
+        stroke-width: 4;
+        stroke-linecap: round;
+      }
+
+      .car-path {
+        fill: none;
+        stroke: var(--f1-red);
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: drive 3s linear forwards;
+      }
+
+      @keyframes drive {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .loading-text {
+        margin-top: 20px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-style: italic;
+        color: var(--f1-white);
+      }
+
+      /* --- STRONA GŁÓWNA --- */
+      header {
+        background-color: var(--f1-red);
+        padding: 20px;
+        text-align: center;
+        border-bottom: 5px solid var(--f1-white);
+        clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        font-style: italic;
+        text-transform: uppercase;
+        font-weight: 900;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: #1f1f27;
+        border-top-right-radius: 25px;
+        border-left: 5px solid var(--f1-red);
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      }
+
+      h2 {
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        font-style: italic;
+        border-bottom: 1px solid var(--f1-dark-gray);
+        padding-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* --- TABELA WYNIKÓW --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        text-align: left;
+        color: var(--f1-silver);
+        font-size: 0.8rem;
+        padding: 10px;
+      }
+
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #2a2a33;
+      }
+
+      .pos {
+        font-weight: bold;
+        width: 40px;
+      }
+      .pts {
+        text-align: right;
+        font-weight: 900;
+        color: var(--f1-red);
+      }
+
+      .driver-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: #2a2a33;
+        margin-bottom: 8px;
+        border-radius: 5px;
+      }
+
+      .badge {
+        background: var(--f1-red);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        font-weight: bold;
+      }
+
+      /* Klasa do ukrycia loadera */
+      .hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loader">
+      <div class="track-container">
+        <svg viewBox="0 0 500 300">
+          <path
+            class="suzuka-path"
+            d="M100,250 C150,250 180,200 220,180 C280,150 350,220 400,220 C450,220 480,180 450,130 C420,80 350,100 300,120 C250,140 200,80 150,50 C100,20 50,50 30,100 C10,180 50,250 100,250 Z"
+          />
+          <path
+            id="car"
+            class="car-path"
+            d="M100,250 C150,250 180,200 220,180 C280,150 350,220 400,220 C450,220 480,180 450,130 C420,80 350,100 300,120 C250,140 200,80 150,50 C100,20 50,50 30,100 C10,180 50,250 100,250 Z"
+          />
+        </svg>
+      </div>
+      <div class="loading-text">Wczytywanie danych GP Japonii...</div>
+    </div>
+
+    <header>
+      <h1>F1 Typer League</h1>
+    </header>
+
+    <div class="container">
+      <div class="card">
+        <h2>Klasyfikacja Typera <span>2024</span></h2>
+        <table>
+          <thead>
+            <tr>
+              <th>POS</th>
+              <th>GRACZ</th>
+              <th style="text-align: right">PKT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="pos">1</td>
+              <td>Robert Kubica Fan</td>
+              <td class="pts">145</td>
+            </tr>
+            <tr>
+              <td class="pos">2</td>
+              <td>Strategy Master</td>
+              <td class="pts">132</td>
+            </tr>
+            <tr>
+              <td class="pos">3</td>
+              <td>BoxBoxBox</td>
+              <td class="pts">128</td>
+            </tr>
+            <tr>
+              <td class="pos">4</td>
+              <td>Rain Master</td>
+              <td class="pts">110</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Wyniki GP Japonii <span>Suzuka</span></h2>
+
+        <div class="driver-card">
+          <span class="pos">1</span>
+          <div>
+            <strong>Max Verstappen</strong> <span class="badge">Red Bull</span>
+          </div>
+        </div>
+
+        <div class="driver-card">
+          <span class="pos">2</span>
+          <div>
+            <strong>Sergio Perez</strong> <span class="badge">Red Bull</span>
+          </div>
+        </div>
+
+        <div class="driver-card">
+          <span class="pos">3</span>
+          <div>
+            <strong>Carlos Sainz</strong>
+            <span class="badge" style="background: #ff2800">Ferrari</span>
+          </div>
+        </div>
+
+        <div class="driver-card">
+          <span class="pos">4</span>
+          <div>
+            <strong>Charles Leclerc</strong>
+            <span class="badge" style="background: #ff2800">Ferrari</span>
+          </div>
+        </div>
+
+        <p style="margin-top: 15px; font-size: 0.8rem; color: var(--f1-silver)">
+          Najszybsze okrążenie: Max Verstappen (1:33.706)
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Symulacja ładowania
+      window.addEventListener("load", () => {
+        const loader = document.getElementById("loader")
+
+        // Czekamy 3 sekundy (czas animacji toru), a potem chowamy loader
+        setTimeout(() => {
+          loader.classList.add("hidden")
+        }, 3500)
+      })
+    </script>
+  </body>
+</html>
