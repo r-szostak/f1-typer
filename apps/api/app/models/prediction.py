@@ -6,8 +6,6 @@ from app.core.database import Base
 from sqlalchemy import ForeignKey, SmallInteger, UniqueConstraint, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from apps.api.app.models.driver import DriverSeason
-from apps.api.app.models.user import User
 
 
 class Prediction(Base): 
@@ -19,7 +17,7 @@ class Prediction(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("sessions.id"))
+    session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("race_sessions.id"))
     score: Mapped[int] = mapped_column(SmallInteger, default=0)
     submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

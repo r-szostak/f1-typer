@@ -7,10 +7,6 @@ from app.core.database import Base
 from sqlalchemy import Boolean, ForeignKey, UniqueConstraint, SmallInteger, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from apps.api.app.models.driver import DriverSeason
-from apps.api.app.models.race import RaceSession
-from apps.api.app.models.user import User
-
 class ResultScore(str, Enum): 
     openf1 = "openf1"
     manual = "manual"
@@ -23,7 +19,7 @@ class RaceResult(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("sessions.id"))
+    session_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("race_sessions.id"))
     driver_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("drivers.id"))
     position: Mapped[int] = mapped_column(SmallInteger)
     dnf: Mapped[bool] = mapped_column(Boolean, default=False)
