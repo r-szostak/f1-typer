@@ -7,7 +7,8 @@ class Settings(BaseSettings):
     database_url_async: str
     database_url_sync: str
     redis_url: str
-    secret_key: str
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
     access_token_expire_minutes: int = 10080
     environment: str = "development"
 
